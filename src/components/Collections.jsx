@@ -1,9 +1,11 @@
 import React from 'react';
 import { OrnateDivider } from './Icons';
-import { collectionsData } from '../data/products';
+import { useStore } from '../context/StoreContext';
 import { Eye, ShoppingBag } from 'lucide-react';
 
 export const Collections = ({ onSelectCollection, onAddToCart }) => {
+  const { products } = useStore();
+
   return (
     <section id="collection" className="py-14 sm:py-16 bg-[#FFFDFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,9 +20,9 @@ export const Collections = ({ onSelectCollection, onAddToCart }) => {
           </OrnateDivider>
         </div>
 
-        {/* 6 Category Cards Grid */}
+        {/* Dynamic Category Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5">
-          {collectionsData.map((item) => (
+          {products.map((item) => (
             <div
               key={item.id}
               onClick={() => onSelectCollection(item)}
@@ -69,7 +71,9 @@ export const Collections = ({ onSelectCollection, onAddToCart }) => {
                 </p>
                 <div className="mt-2 pt-1 border-t border-slate-100 flex items-center justify-between text-[11px]">
                   <span className="font-bold text-[#D81B60]">Rs. {item.price.toLocaleString()}</span>
-                  <span className="text-slate-400 line-through text-[10px]">Rs. {item.originalPrice.toLocaleString()}</span>
+                  <span className="text-slate-400 line-through text-[10px]">
+                    Rs. {(item.originalPrice || item.price).toLocaleString()}
+                  </span>
                 </div>
               </div>
 

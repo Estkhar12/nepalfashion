@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { BrandLogo } from './Icons';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ShieldCheck } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
-export const Footer = ({ onSelectCategory, onShowToast }) => {
+export const Footer = ({ onSelectCategory }) => {
+  const { setCurrentView, showToast } = useStore();
   const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      onShowToast?.('Please enter a valid email address.');
+      showToast('Please enter a valid email address.');
       return;
     }
-    setSubscribed(true);
-    onShowToast?.('Thank you for subscribing to our newsletter!');
+    showToast('Thank you for subscribing to Nepal Fashion KTM updates!');
     setEmail('');
-    setTimeout(() => setSubscribed(false), 5000);
   };
 
   const quickLinks = [
@@ -60,6 +59,16 @@ export const Footer = ({ onSelectCategory, onShowToast }) => {
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm pt-2">
               <span className="text-brand-pink font-semibold">Your one-stop destination</span> for premium ladies' wear in Kathmandu. Style, quality & you.
             </p>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setCurrentView('admin')}
+                className="inline-flex items-center gap-2 text-xs font-bold text-pink-300 hover:text-white bg-slate-800/90 hover:bg-slate-800 px-3.5 py-1.5 rounded-lg border border-slate-700 transition-colors"
+              >
+                <ShieldCheck className="w-4 h-4 text-pink-400" />
+                <span>Store Staff & Admin Portal</span>
+              </button>
+            </div>
           </div>
 
           {/* Column 2: Quick Links */}
@@ -109,9 +118,8 @@ export const Footer = ({ onSelectCategory, onShowToast }) => {
                 FOLLOW US
               </h4>
               
-              {/* Social Icons: Facebook, Instagram, TikTok (Pink circles with white icons) */}
+              {/* Social Icons */}
               <div className="flex items-center gap-3">
-                {/* Facebook */}
                 <a
                   href="https://facebook.com"
                   target="_blank"
@@ -124,7 +132,6 @@ export const Footer = ({ onSelectCategory, onShowToast }) => {
                   </svg>
                 </a>
 
-                {/* Instagram */}
                 <a
                   href="https://instagram.com"
                   target="_blank"
@@ -137,7 +144,6 @@ export const Footer = ({ onSelectCategory, onShowToast }) => {
                   </svg>
                 </a>
 
-                {/* TikTok */}
                 <a
                   href="https://tiktok.com"
                   target="_blank"
@@ -152,7 +158,7 @@ export const Footer = ({ onSelectCategory, onShowToast }) => {
               </div>
             </div>
 
-            {/* Newsletter Subscription */}
+            {/* Newsletter */}
             <div className="pt-2">
               <h5 className="text-xs font-bold text-white tracking-widest uppercase font-serif mb-2">
                 SUBSCRIBE TO OUR NEWSLETTER

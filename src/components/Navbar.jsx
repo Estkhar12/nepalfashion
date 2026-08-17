@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrandLogo } from './Icons';
-import { Phone, ShoppingBag, Menu, X, Heart } from 'lucide-react';
-import { storeInfo } from '../data/products';
+import { Phone, ShoppingBag, Menu, X, ShieldCheck } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
-export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCount = 0 }) => {
+export const Navbar = ({ cartCount = 0, onOpenCart }) => {
+  const { setCurrentView, storeSettings } = useStore();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -16,7 +17,6 @@ export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCoun
         setIsScrolled(false);
       }
 
-      // Track active section for nav highlight
       const sections = ['home', 'collection', 'why-us', 'about', 'contact'];
       const scrollPos = window.scrollY + 200;
       for (const section of sections) {
@@ -60,7 +60,7 @@ export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCoun
           </a>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-7 lg:space-x-9 text-[15px] font-medium text-slate-700">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-[15px] font-medium text-slate-700">
             {navLinks.map((link) => {
               const isActive = activeSection === link.id || (link.id === 'new-arrivals' && activeSection === 'collection');
               return (
@@ -82,18 +82,28 @@ export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCoun
             })}
           </nav>
 
-          {/* Right Action: Phone Button & Cart */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Direct Call Button (Exact matching red/pink pill with phone icon) */}
+          {/* Right Action: Phone Button, Admin Switch & Cart */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Admin Switch Shortcut Button */}
+            <button
+              onClick={() => setCurrentView('admin')}
+              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-pink-300 hover:text-white px-3 py-2 rounded-full font-bold text-xs shadow-sm transition-all border border-slate-700"
+              title="Open Admin Dashboard"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-pink-400" />
+              <span>Admin Portal</span>
+            </button>
+
+            {/* Direct Call Button (Matching red/pink pill with phone icon) */}
             <a
-              href={`tel:${storeInfo.phone}`}
-              className="flex items-center gap-2 bg-[#D81B60] hover:bg-[#C2185B] text-white px-5 py-2.5 rounded-full font-semibold text-sm shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
+              href={`tel:${storeSettings.phone}`}
+              className="flex items-center gap-2 bg-[#D81B60] hover:bg-[#C2185B] text-white px-4 lg:px-5 py-2.5 rounded-full font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
               title="Call Nepal Fashion KTM"
             >
               <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                 <Phone className="w-3 h-3 fill-current text-white" />
               </div>
-              <span className="tracking-wide font-sans">{storeInfo.phone}</span>
+              <span className="tracking-wide font-sans">{storeSettings.phone}</span>
             </a>
 
             {/* Shopping Bag Button */}
@@ -114,13 +124,21 @@ export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCoun
           {/* Mobile Menu & Cart Icon */}
           <div className="flex sm:hidden items-center gap-2">
             <button
+              onClick={() => setCurrentView('admin')}
+              className="p-2 rounded-lg bg-slate-900 text-pink-300 text-xs font-bold flex items-center gap-1"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </button>
+
+            <button
               onClick={onOpenCart}
               className="relative p-2 text-slate-700 hover:text-brand-pink"
               aria-label="View Shopping Cart"
             >
               <ShoppingBag className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute 0 right-0 bg-brand-pink text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-brand-pink text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -153,14 +171,25 @@ export const Navbar = ({ cartCount = 0, onOpenCart, onOpenWishlist, wishlistCoun
             ))}
           </div>
 
-          <div className="pt-2 border-t border-slate-100">
+          <div className="pt-2 border-t border-slate-100 space-y-2">
             <a
-              href={`tel:${storeInfo.phone}`}
+              href={`tel:${storeSettings.phone}`}
               className="flex items-center justify-center gap-2 w-full bg-[#D81B60] text-white py-3 rounded-full font-semibold text-sm shadow-md"
             >
               <Phone className="w-4 h-4 fill-current" />
-              <span>{storeInfo.phone}</span>
+              <span>{storeSettings.phone}</span>
             </a>
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setCurrentView('admin');
+              }}
+              className="flex items-center justify-center gap-2 w-full bg-slate-900 text-pink-300 py-2.5 rounded-full font-bold text-xs"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Open Store Admin Dashboard</span>
+            </button>
           </div>
         </div>
       )}

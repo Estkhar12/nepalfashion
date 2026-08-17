@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { StoreProvider, useStore } from './context/StoreContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Collections } from './components/Collections';
@@ -10,42 +11,21 @@ import { Footer } from './components/Footer';
 import { QuickViewModal } from './components/QuickViewModal';
 import { CartDrawer } from './components/CartDrawer';
 import { Toast } from './components/Toast';
-import { collectionsData } from './data/products';
+import { AdminLayout } from './admin/AdminLayout';
 
-export default function App() {
+function MainStoreApp() {
+  const { 
+    currentView, 
+    cartItems, 
+    addToCart, 
+    toastMessage, 
+    setToastMessage,
+    products 
+  } = useStore();
+
   const [selectedItem, setSelectedItem] = useState(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  
-  // Cart state initialized with 1 sample item for immediate richness, or from localStorage
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('nepal_fashion_cart');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return [
-      {
-        ...collectionsData[1], // Kurtis item
-        selectedSize: 'M',
-        selectedColor: '#E91E63',
-        quantity: 1,
-      }
-    ];
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('nepal_fashion_cart', JSON.stringify(cartItems));
-    } catch (e) {}
-  }, [cartItems]);
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage('');
-    }, 4000);
-  };
 
   const handleOpenQuickView = (item) => {
     setSelectedItem(item);
@@ -57,50 +37,11 @@ export default function App() {
     setSelectedItem(null);
   };
 
-  const handleAddToCart = (newItem) => {
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (i) => i.id === newItem.id && i.selectedSize === newItem.selectedSize
-      );
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += newItem.quantity || 1;
-        return updated;
-      }
-      return [...prev, newItem];
-    });
-    showToast(`Added ${newItem.name} (${newItem.selectedSize}) to your bag!`);
-  };
-
-  const handleUpdateQuantity = (id, size, newQty) => {
-    if (newQty <= 0) {
-      handleRemoveItem(id, size);
-      return;
-    }
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id && item.selectedSize === size
-          ? { ...item, quantity: newQty }
-          : item
-      )
-    );
-  };
-
-  const handleRemoveItem = (id, size) => {
-    setCartItems((prev) =>
-      prev.filter((item) => !(item.id === id && item.selectedSize === size))
-    );
-    showToast('Item removed from shopping bag');
-  };
-
-  const handleClearCart = () => {
-    setCartItems([]);
-  };
-
   const handleCategorySelectFromFooter = (categoryName) => {
-    const matched = collectionsData.find(
-      (c) => c.name.toLowerCase() === categoryName.toLowerCase() ||
-             c.subtitle.toLowerCase().includes(categoryName.toLowerCase())
+    const matched = products.find(
+      (c) =>
+        c.name.toLowerCase() === categoryName.toLowerCase() ||
+        c.subtitle.toLowerCase().includes(categoryName.toLowerCase())
     );
     if (matched) {
       handleOpenQuickView(matched);
@@ -109,10 +50,24 @@ export default function App() {
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
+  // If Admin View is active, render the full Admin Dashboard!
+  if (currentView === 'admin') {
+    return (
+      <>
+        <AdminLayout />
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage('')}
+        />
+      </>
+    );
+  }
+
+  // Public Storefront View
   return (
     <div className="min-h-screen bg-[#FCF9F6] text-slate-800 flex flex-col font-sans selection:bg-brand-pink selection:text-white">
       
-      {/* 1. Top Navbar with Phone CTA & Cart */}
+      {/* 1. Top Navbar with Phone CTA, Admin switch & Cart */}
       <Navbar
         cartCount={totalCartCount}
         onOpenCart={() => setIsCartOpen(true)}
@@ -133,10 +88,10 @@ export default function App() {
           }}
         />
 
-        {/* 3. Explore Our Collections: 6 Cards matching original layout */}
+        {/* 3. Explore Our Collections: Dynamic Garment Cards from Admin Catalog */}
         <Collections
           onSelectCollection={handleOpenQuickView}
-          onAddToCart={handleAddToCart}
+          onAddToCart={addToCart}
         />
 
         {/* 4. Why Choose Nepal Fashion KTM: 6 Circular Badges */}
@@ -161,7 +116,6 @@ export default function App() {
       {/* 8. Midnight Navy Footer */}
       <Footer
         onSelectCategory={handleCategorySelectFromFooter}
-        onShowToast={showToast}
       />
 
       {/* Quick View Modal */}
@@ -169,19 +123,13 @@ export default function App() {
         item={selectedItem}
         isOpen={isQuickViewOpen}
         onClose={handleCloseQuickView}
-        onAddToCart={handleAddToCart}
-        onShowToast={showToast}
+        onAddToCart={addToCart}
       />
 
       {/* Shopping Bag Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-        onShowToast={showToast}
       />
 
       {/* Toast Notification */}
@@ -191,5 +139,13 @@ export default function App() {
       />
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <StoreProvider>
+      <MainStoreApp />
+    </StoreProvider>
   );
 }

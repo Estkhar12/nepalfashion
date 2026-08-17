@@ -62,6 +62,7 @@
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #F5EBE1;
@@ -72,4 +73,22 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #C2185B;
+}
+
+/* Print Invoice Optimizations */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  header, aside, footer, nav, button, .print\:hidden {
+    display: none !important;
+  }
+  #invoice-paper {
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+  }
 }

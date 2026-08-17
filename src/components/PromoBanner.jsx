@@ -2,8 +2,11 @@ import React from 'react';
 import promoModelImg from '../assets/promo-model.jpg';
 import cherryBlossomImg from '../assets/cherry-blossom.jpg';
 import { ArrowRight } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
 export const PromoBanner = ({ onShopNow }) => {
+  const { storeSettings } = useStore();
+
   return (
     <section className="py-6 sm:py-10 bg-[#FFFDFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +34,7 @@ export const PromoBanner = ({ onShopNow }) => {
             {/* Middle Column: Text & Shop Now Button */}
             <div className="lg:col-span-4 p-6 sm:p-8 flex flex-col justify-center items-start space-y-4">
               <p className="text-pink-100 text-sm sm:text-base font-normal max-w-sm leading-relaxed">
-                Get the newest ladies' fashion collection with exclusive seasonal discounts.
+                {storeSettings.announcementText || "Get the newest ladies' fashion collection with exclusive seasonal discounts."}
               </p>
               
               <a
